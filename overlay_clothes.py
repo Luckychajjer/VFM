@@ -11,7 +11,7 @@ detector = PoseDetector()
 
 shirtFolderPath = "Resources/Shirts"
 listShirts = os.listdir(shirtFolderPath)
-# print(listShirts)
+
 fixedRatio = 262 / 190  # widthOfShirt/widthOfPoint11to12
 shirtRatioHeightWidth = 581 / 440 #size of t shirt in pixels
 imageNumber = 0
@@ -29,20 +29,23 @@ cartbutton = cv2.resize(cartbutton,(64,64))
 camerabutton = cv2.imread("Resources/camera.png",cv2.IMREAD_UNCHANGED)
 camerabutton = cv2.resize(camerabutton,(64,64))
 
+headline= cv2.imread("Resources/wardrobe.jpg",cv2.IMREAD_COLOR)
 backbutton= cv2.imread("Resources/back-button.jpg",cv2.IMREAD_COLOR)
-poslist = [[80,320,40,220],[80,320,240,420],[420,660,40,220],[420,660,240,420]]
+buybutton= cv2.imread("Resources/buy-now.jpg",cv2.IMREAD_COLOR)
+buybutton = cv2.resize(buybutton,(64,64))
+poslist = [[90,330,40,220],[90,330,240,420],[430,670,40,220],[430,670,240,420]]
 new_frame_time=0
 prev_frame_time =0
 counterRight = 0
 counterLeft = 0
 selectionSpeed = 20
 count =0
-cartcount=1
+
 cartfolder = 'cart'
 
-if os.path.exists(cartfolder):
-    shutil.rmtree(cartfolder)
-    os.makedirs('cart')
+# if os.path.exists(cartfolder):
+#     shutil.rmtree(cartfolder)
+#     os.makedirs('cart')
 
 while True:
     # img_white = cv2.imread("white-screen.jpg", cv2.IMREAD_COLOR)
@@ -52,7 +55,7 @@ while True:
     img_white = cv2.rotate(img_white, cv2.ROTATE_90_CLOCKWISE)#rotate camera image by 90 ccw
     frame1 = detector.findPose(img_white,draw=False)
     lmList, bboxInfo = detector.findPosition(frame1, bboxWithHands=False, draw=False)
-    img_white = cvzone.overlayPNG(img_white,cartbutton, (400,550))
+    img_white = cvzone.overlayPNG(img_white,cartbutton, (0,150))
     img_white = cvzone.overlayPNG(img_white,camerabutton, (400,150))
     img_white = cvzone.overlayPNG(img_white, imgButtonRight, (420,300))
     img_white= cvzone.overlayPNG(img_white, imgButtonLeft, (0,300))
@@ -74,7 +77,7 @@ while True:
 
 
         cv2.putText(img_white,"^",(leftind[0],leftind[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
-        if leftind[0] <= 450 and leftind[0] >=360 and leftind[1]<=620 and leftind[1]>=530:
+        if leftind[0] <= 60 and leftind[0] >=10 and leftind[1]<=220 and leftind[1]>=160:
             time.sleep(0.75)
             cv2.destroyAllWindows()
             cartlist = os.listdir("cart")
@@ -91,18 +94,21 @@ while True:
                     img = cv2.imread("white-screen.jpg", cv2.IMREAD_COLOR)
                     img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
                     img[700:828,320:448] = backbutton
+                    img[0:80,0:460] = headline
 
-
-                    print(leftind)
                     for i in range(lencart):
+                        img[poslist[i][1]+25:poslist[i][1]+89,poslist[i][2]:poslist[i][2]+64] = buybutton
+                        info = cartlist[i].strip('.jpg')
                         img_img = cv2.imread(os.path.join(cartfolder, cartlist[i]), cv2.IMREAD_UNCHANGED)
                         img_img = cv2.resize(img_img,(180,240))
                         img[poslist[i][0]:poslist[i][1],poslist[i][2]:poslist[i][3]] = img_img
-                    
+                        img = cv2.rectangle(img,(poslist[i][2],poslist[i][0]),(poslist[i][3],poslist[i][1]),(0,0,0), 1)
+                        cv2.putText(img,info,(poslist[i][2]+5,poslist[i][1]+20), cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,0),1, cv2.LINE_AA)
+                        
                     leftind[0] = int(leftind[0]*0.95)
                     leftind[1] = int(leftind[1]*1.34)
                     cv2.putText(img,"^",(leftind[0],leftind[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
-                    if leftind[0] <= 370 and leftind[0] >=280 and leftind[1]<=770 and leftind[1]>=680:
+                    if leftind[0] <= 370 and leftind[0] >=280 and leftind[1]<=800 and leftind[1]>=680:
                         break
 
                     cv2.namedWindow("Image window", cv2.WND_PROP_FULLSCREEN) #for full screen
@@ -136,10 +142,9 @@ while True:
             img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
             img= cvzone.overlayPNG(img, imgShirt, (lm12[0] - offset[0], lm12[1] - offset[1]))
             
-            cv2.imwrite(os.path.join(cartfolder , f'{cartcount}.jpg'), img)
-            cartcount+=1
-
-
+            info = listShirts[imageNumber].strip('.png')
+            cv2.imwrite(os.path.join(cartfolder , f'{info}.jpg'), img)
+          
         if rightind[0] <= 60 and rightind[0] >=20 and rightind[1]<=350 and rightind[1]>=310 :
             counterRight += 1
             cv2.ellipse(img_white, (23,323), (23,23), 0, 0,
