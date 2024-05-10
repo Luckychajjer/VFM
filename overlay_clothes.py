@@ -15,15 +15,7 @@ listShirts = os.listdir(shirtFolderPath)
 fixedRatio = 262 / 190  # widthOfShirt/widthOfPoint11to12
 shirtRatioHeightWidth = 581 / 440 #size of t shirt in pixels
 imageNumber = 0
-imgButtonRight = cv2.imread("Resources/button.png", cv2.IMREAD_UNCHANGED)
-imgButtonLeft = cv2.flip(imgButtonRight, 1)
-scale_percent = 35 # percent of original size
-width = int(imgButtonRight.shape[1] * scale_percent / 100)
-height = int(imgButtonRight.shape[0] * scale_percent / 100)
-dim = (width, height)
-imgButtonRight = cv2.resize(imgButtonRight,dim)
-imgButtonLeft = cv2.resize(imgButtonLeft,dim)
-# scale_percent = 3
+backbutton= cv2.imread("Resources/back-button.jpg",cv2.IMREAD_COLOR)
 buybutton= cv2.imread("Resources/reclick.jpg",cv2.IMREAD_COLOR)
 # buybutton = cv2.resize(buybutton,(90,45))
 poslist = [[90,330,40,220],[90,330,240,420],[430,670,40,220],[430,670,240,420]]
@@ -50,8 +42,6 @@ while True:
     img_white = cv2.rotate(img_white, cv2.ROTATE_90_CLOCKWISE)#rotate camera image by 90 ccw
     frame1 = detector.findPose(img,draw=False)
     lmList, bboxInfo = detector.findPosition(frame1, bboxWithHands=False, draw=False)
-    img_white = cvzone.overlayPNG(img_white, imgButtonRight, (420,300))
-    img_white= cvzone.overlayPNG(img_white, imgButtonLeft, (0,300))
     if lmList:
         lm11 = lmList[11][:2]
         lm12 = lmList[12][:2]
@@ -137,9 +127,9 @@ while True:
             info = listShirts[imageNumber].strip('.png')
             cv2.imwrite(os.path.join(cartfolder , f'{info}.jpg'), img)
           
-        if rightind[0] <= 60 and rightind[0] >=20 and rightind[1]<=350 and rightind[1]>=310 :
+        if rightind[0] <= 60 and rightind[0] >=20 and rightind[1]<=470 and rightind[1]>=420 :
             counterRight += 1 #lefthand gesture
-            cv2.ellipse(img_white, (23,323), (23,23), 0, 0,
+            cv2.ellipse(img_white, (40,434), (21,21), 0, 0,
                         counterRight * selectionSpeed, (0, 255, 0), 10)
             if counterRight * selectionSpeed > 360:
                 counterRight = 0
@@ -148,9 +138,9 @@ while True:
                 else:
                     imageNumber = len(listShirts) - 1
 
-        elif leftind[0] <=450  and leftind[0] >=405 and leftind[1]<=350 and leftind[1]>=310 :
+        elif leftind[0] <=450  and leftind[0] >=395 and leftind[1]<=470 and leftind[1]>=420 :
             counterLeft += 1 #righthand gesture
-            cv2.ellipse(img_white, (443,323), (23,23), 0, 0,
+            cv2.ellipse(img_white, (418,432), (21,21), 0, 0,
                         counterLeft * selectionSpeed, (0, 255, 0), 10)
             if counterLeft * selectionSpeed > 360:
                 counterLeft = 0
